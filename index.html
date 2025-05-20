@@ -7,7 +7,54 @@
 </head>
 <body>
   <h1>Вітаємо на платформі онлайн-курсу з фотографії</h1>
+
+  <div>
+    <h2>Додати пройдений урок</h2>
+    <input type="text" id="lessonId" placeholder="ID уроку" />
+    <input type="date" id="passedAt" />
+    <button onclick="submitLesson()">Зберегти</button>
+  </div>
+
+  <h2>Мій прогрес</h2>
   <div id="progress-container"></div>
-  <script src="script.js"></script>
+
+  <script>
+    // Отримати прогрес
+    fetch('https://твоє-api.onrender.com/api/progress', {
+      method: 'GET',
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem('token')
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById('progress-container');
+      data.forEach(item => {
+        const el = document.createElement('div');
+        el.textContent = `Урок: ${item.lessonId}, Пройдений: ${new Date(item.passedAt).toLocaleDateString()}`;
+        container.appendChild(el);
+      });
+    });
+
+    // Додати новий урок
+    function submitLesson() {
+      const lessonId = document.getElementById('lessonId').value;
+      const passedAt = document.getElementById('passedAt').value;
+
+      fetch('https://твоє-api.onrender.com/api/progress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + localStorage.getItem('token')
+        },
+        body: JSON.stringify({ lessonId, passedAt })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert('Урок збережено!');
+        location.reload(); // оновити прогрес
+      });
+    }
+  </script>
 </body>
 </html>
